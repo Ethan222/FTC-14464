@@ -23,6 +23,8 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -68,8 +70,7 @@ public class Right2 extends LinearOpMode
     private static final int ARM_PARTWAY_UP_TIME = 700;
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(0, 0, 0);
         drive.setPoseEstimate(startPose);
@@ -133,17 +134,14 @@ public class Right2 extends LinearOpMode
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
         camera.setPipeline(aprilTagDetectionPipeline);
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+            public void onOpened() {
+                camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
-            public void onError(int errorCode)
-            {
+            public void onError(int errorCode) {
 
             }
         });
@@ -154,17 +152,14 @@ public class Right2 extends LinearOpMode
          * The INIT-loop:
          * This REPLACES waitForStart!
          */
-        while (!isStarted() && !isStopRequested())
-        {
+        while (!isStarted() && !isStopRequested()) {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
-            if(currentDetections.size() != 0)
-            {
+            if (currentDetections.size() != 0) {
                 boolean tagFound = false;
 
-                for(AprilTagDetection tag : currentDetections)
-                {
-                    for(int i = 0; i < 3; i++) {
+                for (AprilTagDetection tag : currentDetections) {
+                    for (int i = 0; i < 3; i++) {
                         if (tag.id == TAGS[i]) {
                             tagOfInterest = tag;
                             tagFound = true;
@@ -174,37 +169,26 @@ public class Right2 extends LinearOpMode
                     }
                 }
 
-                if(tagFound)
-                {
+                if (tagFound) {
                     telemetry.addLine("Tag " + tagOfInterest.id + " found. Zone " + zone + "\n\nLocation data:");
                     tagToTelemetry(tagOfInterest);
-                }
-                else
-                {
+                } else {
                     telemetry.addLine("Don't see tag of interest :(");
 
-                    if(tagOfInterest == null)
-                    {
+                    if (tagOfInterest == null) {
                         telemetry.addLine("(The tag has never been seen)");
-                    }
-                    else
-                    {
+                    } else {
                         telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                         tagToTelemetry(tagOfInterest);
                     }
                 }
 
-            }
-            else
-            {
+            } else {
                 telemetry.addLine("Don't see tag of interest :(");
 
-                if(tagOfInterest == null)
-                {
+                if (tagOfInterest == null) {
                     telemetry.addLine("(The tag has never been seen)");
-                }
-                else
-                {
+                } else {
                     telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                     tagToTelemetry(tagOfInterest);
                 }
@@ -221,14 +205,11 @@ public class Right2 extends LinearOpMode
          */
 
         /* Update the telemetry */
-        if(tagOfInterest != null)
-        {
+        if (tagOfInterest != null) {
             telemetry.addLine("Tag snapshot:\n");
             tagToTelemetry(tagOfInterest);
             telemetry.update();
-        }
-        else
-        {
+        } else {
             telemetry.addLine("No tag snapshot available, it was never sighted during the init loop :(");
             telemetry.update();
         }
@@ -243,13 +224,29 @@ public class Right2 extends LinearOpMode
             intake.close(); // pick up cone
             armUp(intake, 300); // lift cone
             drive.followTrajectorySequence(seq3); // move to low junction
-            intake.open();
+            intake.open();  // drop cone
             drive.followTrajectorySequence(seq4); // move to cone stack
+
+
+        // park
+        if (zone != 2) {    // if zone 2, it's already parked
+            // strafe left
+            Trajectory traj1 = drive.trajectoryBuilder(startPose).strafeLeft(10).build();
+            drive.followTrajectory(traj1);
+
+            // move forward/backward
+            Trajectory traj2;
+            if(zone == 1)
+                traj2 = drive.trajectoryBuilder(startPose).back(26).build();
+            else
+                traj2 = drive.trajectoryBuilder(startPose).forward(18).build();
+            drive.followTrajectory(traj2);
+        }
     }
 
     void tagToTelemetry(AprilTagDetection detection)
     {
-        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
+        telemetry.addLine(String.format("\nDetected tag ID = %d", detection.id));
         telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
         telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
         telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
