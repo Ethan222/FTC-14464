@@ -62,12 +62,12 @@ public class Right2 extends LinearOpMode
     // UNITS ARE METERS
     double tagsize = 0.166;
 
-    final int[] TAGS  = { 1, 0, 2 };
+    final int[] TAGS  = { 0, 1, 2 };
 
     AprilTagDetection tagOfInterest = null;
-    int zone = 0;
+    int zone = 2;
 
-    private static final int ARM_PARTWAY_UP_TIME = 700;
+    private static final double ARM_PARTWAY_UP_TIME = .7;
 
     @Override
     public void runOpMode() {
@@ -78,35 +78,35 @@ public class Right2 extends LinearOpMode
         RevControlHub intake = new RevControlHub();
         intake.init(hardwareMap);
 
-        double startTime = 1;
-        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(startPose)
+        double startTime = .5;
+        TrajectorySequence toLowJunction1 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(-1);    // arm up
                 })
                 .addTemporalMarker(startTime + ARM_PARTWAY_UP_TIME, () -> {
-                    intake.setArmMotorSpeed(0);
+                    intake.setArmMotorSpeed(0);     // stop arm
                 })
                 .forward(2)
-                .strafeRight(12)
+                .strafeRight(10.5)
                 .forward(26)
                 .build();
-        startTime = .3;
-        double downTime = .2;
-        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(startPose)
-                .back(2)
+        startTime = 1;
+        double downTime = .6;
+        TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(startPose)
+                .strafeRight(13)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(1); // arm down
                 })
                 .addTemporalMarker(startTime + downTime, () -> {
                     intake.setArmMotorSpeed(0);
                 })
-                .strafeRight(10)
-                .forward(12)
+                .forward(18)
                 .turn(Math.toRadians(-90)) // turn right
+                .forward(4.5)
                 .build();
-        double upTime = downTime;
-        double dist = 14, strafe = 10;
-        TrajectorySequence seq3 = drive.trajectorySequenceBuilder(startPose)
+        double upTime = .2;
+        double dist = 19, strafe = 10;
+        TrajectorySequence toJunction2 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(-1); // arm up
                 })
@@ -116,8 +116,8 @@ public class Right2 extends LinearOpMode
                 .back(dist)
                 .strafeRight(strafe)
                 .build();
-        downTime += .1;
-        TrajectorySequence seq4 = drive.trajectorySequenceBuilder(startPose)
+        downTime += .3;
+        TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(1); // arm down
                 })
@@ -217,19 +217,23 @@ public class Right2 extends LinearOpMode
         /* Start of Auto */
         intake.close();
 
-        drive.followTrajectorySequence(seq1); // move to low junction
+        drive.followTrajectorySequence(toLowJunction1); // move to low junction
         intake.open();  // drop cone
-        drive.followTrajectorySequence(seq2); // move to cone stack
+        drive.followTrajectorySequence(toStack1); // move to cone stack
         // repeat:
             intake.close(); // pick up cone
-            armUp(intake, 300); // lift cone
-            drive.followTrajectorySequence(seq3); // move to low junction
+            sleep(100);
+            armUp(intake, 100); // lift cone
+            drive.followTrajectorySequence(toJunction2); // move to low junction
             intake.open();  // drop cone
-            drive.followTrajectorySequence(seq4); // move to cone stack
+            //drive.followTrajectorySequence(toStack2); // move to cone stack
 
 
         // park
-        if (zone != 2) {    // if zone 2, it's already parked
+        if(zone == 2) {
+            Trajectory traj = drive.trajectoryBuilder(startPose).back(5).build();
+            drive.followTrajectory(traj);
+        } else {
             // strafe left
             Trajectory traj1 = drive.trajectoryBuilder(startPose).strafeLeft(10).build();
             drive.followTrajectory(traj1);
@@ -237,7 +241,7 @@ public class Right2 extends LinearOpMode
             // move forward/backward
             Trajectory traj2;
             if(zone == 1)
-                traj2 = drive.trajectoryBuilder(startPose).back(26).build();
+                traj2 = drive.trajectoryBuilder(startPose).back(30).build();
             else
                 traj2 = drive.trajectoryBuilder(startPose).forward(18).build();
             drive.followTrajectory(traj2);
