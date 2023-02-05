@@ -87,25 +87,25 @@ public class Right2 extends LinearOpMode
                     intake.setArmMotorSpeed(0);     // stop arm
                 })
                 .forward(2)
-                .strafeRight(10.5)
+                .strafeRight(10)
                 .forward(26)
                 .build();
         startTime = 1;
-        double downTime = .6;
+        //double downTime = .6;
         TrajectorySequence toStack1 = drive.trajectorySequenceBuilder(startPose)
-                .strafeRight(13)
-                .addTemporalMarker(startTime, () -> {
+                .strafeRight(12)
+                /*.addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(1); // arm down
                 })
                 .addTemporalMarker(startTime + downTime, () -> {
                     intake.setArmMotorSpeed(0);
-                })
-                .forward(18)
+                })*/
+                .forward(16)
                 .turn(Math.toRadians(-90)) // turn right
-                .forward(4.5)
+                .forward(3.5)
                 .build();
-        double upTime = .2;
-        double dist = 19, strafe = 10;
+        double upTime = .1;
+        double dist = 18.5, strafe = 14;
         TrajectorySequence toJunction2 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(-1); // arm up
@@ -116,7 +116,7 @@ public class Right2 extends LinearOpMode
                 .back(dist)
                 .strafeRight(strafe)
                 .build();
-        downTime += .3;
+        double downTime = .6;
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(1); // arm down
@@ -125,6 +125,17 @@ public class Right2 extends LinearOpMode
                     intake.setArmMotorSpeed(0);
                 })
                 .strafeLeft(strafe)
+                .forward(dist)
+                .build();
+        downTime += .2;
+        TrajectorySequence toStack3 = drive.trajectorySequenceBuilder(startPose)
+                .addTemporalMarker(startTime, () -> {
+                    intake.setArmMotorSpeed(1); // arm down
+                })
+                .addTemporalMarker(startTime + downTime, () -> {
+                    intake.setArmMotorSpeed(0);
+                })
+                .strafeLeft(strafe + 1)
                 .forward(dist)
                 .build();
 
@@ -220,28 +231,41 @@ public class Right2 extends LinearOpMode
         drive.followTrajectorySequence(toLowJunction1); // move to low junction
         intake.open();  // drop cone
         drive.followTrajectorySequence(toStack1); // move to cone stack
+        armDown(intake, 450);
         // repeat:
-            intake.close(); // pick up cone
-            sleep(100);
-            armUp(intake, 100); // lift cone
-            drive.followTrajectorySequence(toJunction2); // move to low junction
-            intake.open();  // drop cone
-            //drive.followTrajectorySequence(toStack2); // move to cone stack
+        intake.close(); // pick up cone
+        sleep(300);
+        armUp(intake, 300); // lift cone
+        drive.followTrajectorySequence(toJunction2); // move to low junction
+        intake.open();  // drop cone
 
-
+        drive.followTrajectorySequence(toStack2); // move to cone stack
+        intake.close(); // grab cone
+        sleep(300);
+        armUp(intake, 300); // lift cone
+        drive.followTrajectorySequence(toJunction2);
+        intake.open();
+        /*
+        drive.followTrajectorySequence(toStack3);
+        intake.close(); // grab cone
+        sleep(300);
+        armUp(intake, 300); // lift cone
+        drive.followTrajectorySequence(toJunction2);
+        intake.open();
+        */
         // park
         if(zone == 2) {
             Trajectory traj = drive.trajectoryBuilder(startPose).back(5).build();
             drive.followTrajectory(traj);
         } else {
             // strafe left
-            Trajectory traj1 = drive.trajectoryBuilder(startPose).strafeLeft(10).build();
+            Trajectory traj1 = drive.trajectoryBuilder(startPose).strafeLeft(strafe).build();
             drive.followTrajectory(traj1);
 
             // move forward/backward
             Trajectory traj2;
             if(zone == 1)
-                traj2 = drive.trajectoryBuilder(startPose).back(30).build();
+                traj2 = drive.trajectoryBuilder(startPose).back(24).build();
             else
                 traj2 = drive.trajectoryBuilder(startPose).forward(18).build();
             drive.followTrajectory(traj2);
