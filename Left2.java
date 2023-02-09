@@ -77,7 +77,7 @@ public class Left2 extends LinearOpMode
         intake.init(hardwareMap);
 
         double startTime = .5;
-        final double uptime = .87;
+        final double uptime = .915; //91; //92; //.91; //.94; //.92; //.87; //.99
         TrajectorySequence toLowJunction0 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(0, () -> {
                     intake.close();
@@ -89,8 +89,8 @@ public class Left2 extends LinearOpMode
                     intake.setArmMotorSpeed(0);     // stop arm
                 })
                 .forward(2)
-                .strafeLeft(16.8)
-                .forward(25.7)
+                .strafeLeft(18) //17.7)
+                .forward(25.5) //.9) //.7)
                 .build();
         startTime = 1;
         //double downTime = .6;
@@ -102,13 +102,13 @@ public class Left2 extends LinearOpMode
                 .addTemporalMarker(startTime + downTime, () -> {
                     intake.setArmMotorSpeed(0);
                 })*/
-                .forward(16)
+                .forward(16) //-?
                 .turn(Math.toRadians(90.5)) // turn left
                 .forward(3)
                 .build();
         startTime = .2;
         double upTime = .4;
-        double dist = 18, strafe = 12.7;
+        double dist = 18, strafe = 15.3; //14.8; //13.9; //.4;
         TrajectorySequence toJunction1 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(-1); // arm up
@@ -120,7 +120,7 @@ public class Left2 extends LinearOpMode
                 .strafeLeft(strafe)
                 .build();
         startTime = 1;
-        double downTime = .46;
+        double downTime = .44; //42; //.46;
         TrajectorySequence toStack2 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(1); // arm down
@@ -128,11 +128,11 @@ public class Left2 extends LinearOpMode
                 .addTemporalMarker(startTime + downTime, () -> {
                     intake.setArmMotorSpeed(0);
                 })
-                .strafeRight(strafe)
+                .strafeRight(strafe - 1)
                 .forward(dist)
                 .build();
         startTime = .3;
-        upTime += .2;
+        upTime = .6;
         TrajectorySequence toJunction2 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(-1); // arm up
@@ -143,8 +143,9 @@ public class Left2 extends LinearOpMode
                 .back(dist)
                 .strafeLeft(strafe + 1.5)
                 .build();
+        // only if zone 2
         startTime = .8;
-        downTime += -.33;
+        downTime = .18; //?
         TrajectorySequence toStack3 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(1); // arm down
@@ -155,7 +156,7 @@ public class Left2 extends LinearOpMode
                 .strafeRight(strafe - 1)
                 .forward(dist)
                 .build();
-        upTime += -.3;
+        upTime = .21; //17; //.2; //.3;
         TrajectorySequence toJunction3 = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(startTime, () -> {
                     intake.setArmMotorSpeed(-1); // arm up
@@ -166,7 +167,7 @@ public class Left2 extends LinearOpMode
                 .back(dist)
                 .strafeLeft(strafe)
                 .build();
-        final int armDownAtEndTime = 950;
+        final int armDownAtEndTime = 1000; //950;
 
         // april tag stuff
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -261,7 +262,7 @@ public class Left2 extends LinearOpMode
         intake.open();  // drop 1st cone
         // 2nd cone
         drive.followTrajectorySequence(toStack1); // move to cone stack
-        armDown(intake, 450);
+        armDown(intake, 410); //15); //25); //400); //450);
         intake.close(); // pick up cone
         sleep(300);
         armUp(intake, 300); // lift cone
@@ -288,18 +289,13 @@ public class Left2 extends LinearOpMode
             Trajectory traj = drive.trajectoryBuilder(startPose).back(5).build();
             drive.followTrajectory(traj);
         } else {    // park if zone is 1 or 3
-            // strafe left
-            Trajectory traj1 = drive.trajectoryBuilder(startPose).strafeRight(strafe).build();
-            drive.followTrajectory(traj1);
-
-            // move forward/backward
-            Trajectory traj2;
-            if(zone == 3)
-                traj2 = drive.trajectoryBuilder(startPose).back(24).build();
-            else
-                traj2 = drive.trajectoryBuilder(startPose).forward(16).build();
-            drive.followTrajectory(traj2);
-            drive.turn(Math.toRadians(90)); // turn left
+            TrajectorySequence traj2 = drive.trajectorySequenceBuilder(startPose)
+                .strafeRight(strafe)
+                .forward(zone == 1 ? 15.6 : -24)
+                .turn(Math.toRadians(90)) // turn left
+                .forward(7)
+                .build();
+            drive.followTrajectorySequence(traj2);
         }
         armDown(intake, armDownAtEndTime);
     }
