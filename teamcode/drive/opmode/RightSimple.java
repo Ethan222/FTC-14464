@@ -23,11 +23,11 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -37,12 +37,13 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
 @Config
 @Autonomous
-public class NewLeft extends LinearOpMode
+public class RightSimple extends LinearOpMode
 {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -64,157 +65,38 @@ public class NewLeft extends LinearOpMode
     final int[] TAGS  = { 0, 1, 2 };
 
     AprilTagDetection tagOfInterest = null;
-    int zone = 2;
+    int zone = 3;
 
     @Override
     public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(-35, -61, Math.toRadians(180));
+        Pose2d startPose = new Pose2d(0, 0, 0);
         drive.setPoseEstimate(startPose);
 
         RevControlHub intake = new RevControlHub();
         intake.init(hardwareMap);
 
-        int lowPsn = 1750;
-        double stackX = -58, stackY = -11.7;
-        double junctionX = -22, junctionY = -12;
-        double intakeWaitTime = .3, liftWaitTime = .5;
-        TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
-                .addTemporalMarker(() -> {
+        double startTime = .5;
+        final double uptime = .906;//58;//55;//06;//07;//05;//902;//91;//.915; //91; //92; //.91; //.94; //.92; //.87; //.99
+        TrajectorySequence toLowJunction0 = drive.trajectorySequenceBuilder(startPose)
+                .addTemporalMarker(0, () -> {
                     intake.close();
                 })
-                // move to low junction
-                .addTemporalMarker(.5, () -> {
-                    // arm up to low junction height
+                .addTemporalMarker(startTime, () -> {
+                    intake.setArmMotorSpeed(-1);    // arm up
                 })
-                .lineTo(new Vector2d(-35, -24))
-                // drop 0th cone
-                .addTemporalMarker(() -> {
-                    intake.open();
+                .addTemporalMarker(startTime + uptime, () -> {
+                    intake.setArmMotorSpeed(0);     // stop arm
                 })
-                .waitSeconds(intakeWaitTime)
-
-                // 1ST CONE - move to stack 1st time
-                .lineTo(new Vector2d(-35, -13))
-                .addTemporalMarker(() -> {
-                    // arm down to stack height (5 cones)
-                })
-                .lineTo(new Vector2d(stackX, stackY))
-                // pick up 1st cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 1st time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                })
-                .waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 1st cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-
-                // 2ND CONE - move to stack 2nd time
-                .addTemporalMarker(() -> {
-                    // arm down to stack height (4 cones)
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 2nd cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 2nd time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                })
-                .waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 2nd cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-
-                // 3RD CONE - move to stack 3rd time
-                .addTemporalMarker(() -> {
-                    // arm down to stack height (3 cones)
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 3rd cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 3rd time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                })
-                .waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 3rd cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-
-                // 4TH CONE - move to stack 4th time
-                .addTemporalMarker(() -> {
-                    // arm down to stack height (2 cones)
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 4th cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 4th time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                })
-                .waitSeconds((liftWaitTime)) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 4th cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-
-                // 5TH (LAST) CONE - move to stack 5th time
-                .addTemporalMarker(() -> {
-                    // arm down to stack height (1 cone)
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 5th cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 5th time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                })
-                .waitSeconds((liftWaitTime)) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 5th cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
+                .forward(2)
+                .strafeRight(8.4)
+                .forward(26.7)
                 .build();
-        TrajectorySequence zone1 = drive.trajectorySequenceBuilder(traj.end())
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(-90)))
+        TrajectorySequence zone3 = drive.trajectorySequenceBuilder(startPose)
+                .strafeRight(12)//10.5)//11)//12)
                 .build();
-        TrajectorySequence zone2 = drive.trajectorySequenceBuilder(traj.end())
-                .lineToLinearHeading(new Pose2d(-35, -14, Math.toRadians(-90)))
-                .build();
-        TrajectorySequence zone3 = drive.trajectorySequenceBuilder(traj.end())
-                .lineToLinearHeading(new Pose2d(-11.5, -14, Math.toRadians(-90)))
-                .build();
-        TrajectorySequence[] zones = { null, zone1, zone2, zone3 };
+
+        final int armDownAtEndTime = 1000; //950;
 
         // april tag stuff
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -303,30 +185,45 @@ public class NewLeft extends LinearOpMode
         }
 
         /* Start of Auto */
-        ElapsedTime t = new ElapsedTime();
+        //intake.close();
 
-        drive.followTrajectorySequenceAsync(traj);
-        intake.armUp();
-        while(opModeIsActive() && !isStopRequested() && intake.getArmMotorRotations() < lowPsn);
-        intake.stopArm();
+        drive.followTrajectorySequence(toLowJunction0); // move to low junction
+        sleep(400);
+        intake.open();  // drop 1st cone
 
-        // park
-        drive.followTrajectorySequence(zones[zone]);
-
-        while(!isStopRequested() && opModeIsActive()) {
-            telemetry.addData("Time", t.time());
-            telemetry.update();
+        drive.followTrajectorySequence(zone3);
+        armDown(intake, armDownAtEndTime);
+        if(zone != 3) {
+            TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
+                    .forward(18)
+                    .strafeLeft(zone == 2 ? 23 : 48)
+                    .turn(Math.toRadians(180))
+                    .forward(5)
+                    .build();
+            drive.followTrajectorySequence(traj);
         }
     }
 
     void tagToTelemetry(AprilTagDetection detection)
     {
-        telemetry.addLine(String.format("\nDetected tag ID = %d", detection.id));
+        telemetry.addLine(String.format("\nDetected tag ID = %d (ZONE %d)", detection.id, zone));
         telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
         telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
         telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
         telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
+    }
+
+    public void armUp(RevControlHub intake, int time) {
+        intake.setArmMotorSpeed(-1);
+        sleep(time);
+        intake.setArmMotorSpeed(0);
+    }
+
+    public void armDown(RevControlHub intake, int time) {
+        intake.setArmMotorSpeed(1);
+        sleep(time);
+        intake.setArmMotorSpeed(0);
     }
 }
