@@ -52,6 +52,9 @@ public class SimpleTele extends LinearOpMode {
             else {
                 intake.setArmMotorSpeed(gamepad1.left_trigger > 0 ? gamepad1.left_trigger : -gamepad1.right_trigger);
             }
+
+
+
             // intake
             if(gamepad1.left_bumper) {
                 intake.close();

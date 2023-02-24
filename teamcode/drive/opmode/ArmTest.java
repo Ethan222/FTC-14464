@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.mechanism.RevControlHub;
 
 @Config
-@Autonomous
+@Autonomous(group = "test")
 public class ArmTest extends LinearOpMode {
     @Override
     public void runOpMode() {
@@ -16,7 +16,7 @@ public class ArmTest extends LinearOpMode {
 
         waitForStart();
 
-        intake.armRuntoPosition(2500);
+       // intake.armRuntoPosition(2500);
 
         while(opModeIsActive() && !isStopRequested()) {
         }

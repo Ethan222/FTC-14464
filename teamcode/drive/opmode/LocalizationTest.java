@@ -28,7 +28,9 @@ public class LocalizationTest extends LinearOpMode {
         intake.init(hardwareMap);
 
         // Setting up motors to run without Encoders
+        intake.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         waitForStart();
 
@@ -49,7 +51,40 @@ public class LocalizationTest extends LinearOpMode {
             {
                 intake.setArmMotorSpeed(0);
             }
-            else intake.setArmMotorSpeed(gamepad2.left_stick_y);
+            else
+                intake.setArmMotorSpeed(-gamepad2.left_stick_y);
+            /*
+            if (gamepad2.a)
+            {
+                if ((int)intake.getArmMotorRotations() <=1000) {
+                    intake.armRuntoPositionPositive(1000, 1.0);
+                }
+                else
+                {
+                    intake.armRuntoPositionNegative(1000, 1.0);
+                }
+            }
+            if (gamepad2.b)
+            {
+                if ((int)intake.getArmMotorRotations() <=2500) {
+                    intake.armRuntoPositionPositive(2500, 1.0);
+                }
+                else
+                {
+                    intake.armRuntoPositionNegative(2500, 1.0);
+                }
+            }
+            if (gamepad2.x)
+            {
+                if ((int)intake.getArmMotorRotations() <=4500) {
+                    intake.armRuntoPositionPositive(4500, 1.0);
+                }
+                else
+                {
+                    intake.armRuntoPositionNegative(4500, 1.0);
+                }
+            }
+            */
             // intake
             if(gamepad2.left_bumper) {
                 intake.close();
@@ -65,7 +100,8 @@ public class LocalizationTest extends LinearOpMode {
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", poseEstimate.getHeading());
-            telemetry.addData("Rotation of Arm  Motor", intake.getArmMotorRotations());
+            telemetry.addData("Rotation of Arm  Motor", (int)intake.getArmMotorRotations());
+            telemetry.addData("Rotation of Arm  Motor", (int)intake.armMotor.getPower());
             telemetry.addData("Arm Y", gamepad2.left_stick_y);
             telemetry.update();
         }

@@ -33,20 +33,53 @@ public class RevControlHub {
         return armMotor.getCurrentPosition();
     }
 
-    public void armRuntoPosition(int position, double power){
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public void armRuntoPositionPositive(int position, double power){
+       // armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setTargetPosition(-position);
+        armMotor.setTargetPosition(position);
         while(getArmMotorRotations() < position) {
+            armMotor.setPower(-power);
+        }
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armMotor.setPower(0);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void armRuntoPositionNegative(int position, double power){
+        // armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setTargetPosition(position);
+        while(getArmMotorRotations() > position) {
             armMotor.setPower(power);
         }
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armMotor.setPower(0);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void armRuntoPosition(int position, double power) {
+        if ((int)getArmMotorRotations() <= position) {
+            armRuntoPositionPositive(position, power);
+        }
+        else {
+            armRuntoPositionNegative(position, power);
+        }
     }
 
     public void armRuntoPosition(int position) {
         armRuntoPosition(position, 1);
+    }
+
+    public void armRuntoPositionPositive(int position) {
+        armRuntoPositionPositive(position, 1);
+    }
+
+    public void armRuntoPositionNegative(int position) {
+        armRuntoPositionNegative(position, 1);
     }
 
     public void armUp() {
@@ -69,13 +102,13 @@ public class RevControlHub {
         clampServo2.setPosition(postion);
     }
 
-    public void open() {
-        clampServo1.setPosition(.5);
-        clampServo2.setPosition(.4);
+    public void close() {
+        clampServo1.setPosition(.55);
+        clampServo2.setPosition(.35);
     }
 
-    public void close() {
-        clampServo1.setPosition(.35);
+    public void open() {
+        clampServo1.setPosition(.4);
         clampServo2.setPosition(.45);
     }
 }
