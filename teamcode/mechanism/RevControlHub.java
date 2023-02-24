@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class RevControlHub {
-    private DcMotor armMotor;
+    public DcMotor armMotor;
     private Servo clampServo1;
     private Servo clampServo2;
     private double ticksPerRotation;
