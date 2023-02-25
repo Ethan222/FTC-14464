@@ -78,23 +78,23 @@ public class NewLeft extends LinearOpMode
         intake.init(hardwareMap);
         intake.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int lowPsn = 1750, highPsn = 4300, downPsn = 15;
+        int lowPsn = 2000, highPsn = 4300, downPsn = 15;
         int[] stackArmPsns = {0, 590, 450, 310, 170, 30};
-        double stackX = -53, stackY = -11.7;
+        double stackX = -53, stackY = 0;
         double junctionX = -18, junctionY = -9;
         double intakeWaitTime = .3; // time in seconds to wait while clamping or unclamping the intake
         double liftWaitTime = .01; // time in seconds to wait when lifting a cone off the stack
         double armDownWaitTime = .5; // time in seconds to wait before moving the arm down
         TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
-                .addTemporalMarker(() -> {
+                /*.addTemporalMarker(() -> {
                     intake.close();
                 })
                 // move to low junction
                 .addTemporalMarker(intakeWaitTime, () -> {
                     // arm up to low junction height
                     intake.armRuntoPosition(lowPsn);
-                })
-                .lineTo(new Vector2d(-31, -19))
+                })*/
+                .lineTo(new Vector2d(-28, -17))
                 // drop 0th cone
                 .addTemporalMarker(() -> {
                     intake.open();
@@ -102,12 +102,14 @@ public class NewLeft extends LinearOpMode
                 .waitSeconds(intakeWaitTime)
 
                 // 1ST CONE - move to stack 1st time
-                .lineTo(new Vector2d(-35, -13))
+                .lineTo(new Vector2d(-34, -4))
                 .addTemporalMarker(() -> {
                     // arm down to stack height (5 cones)
                     //intake.armRuntoPosition(stackArmPsns[1]);
                 })
                 .lineTo(new Vector2d(stackX, stackY))
+                .build();
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj.end())
                 // pick up 1st cone
                 .addTemporalMarker(() -> {
                     intake.close();
@@ -222,7 +224,7 @@ public class NewLeft extends LinearOpMode
                 })
                 .waitSeconds(intakeWaitTime)*/
                 .build();
-        TrajectorySequence zone1 = drive.trajectorySequenceBuilder(traj.end())
+        TrajectorySequence zone1 = drive.trajectorySequenceBuilder(traj2.end())
                 .addTemporalMarker(armDownWaitTime, () -> {
                     intake.armRuntoPosition(downPsn);
                 })
@@ -329,12 +331,14 @@ public class NewLeft extends LinearOpMode
         }
 
         /* Start of Auto */
+        intake.close();
         ElapsedTime t = new ElapsedTime();
-
+        sleep(300);
+        intake.armRuntoPosition(lowPsn);
         drive.followTrajectorySequence(traj);
 
         // park
-        drive.followTrajectorySequence(zones[zone]);
+        //drive.followTrajectorySequence(zones[zone]);
 
         while(!isStopRequested() && opModeIsActive()) {
             telemetry.addData("Time", t.time());
