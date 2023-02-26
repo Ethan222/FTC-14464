@@ -80,8 +80,8 @@ public class NewLeft extends LinearOpMode
 
         int lowPsn = 1850, highPsn = 4470, downPsn = 15;
         int[] stackArmPsns = {0, 590, 450, 310, 170, 30};
-        double stackX = -61.3, stackY = -7;
-        double junctionX = -27, junctionY = -6;
+        double stackX = -61.7, stackY = -7;
+        double junctionX = -25.9-.2, junctionY = -6-.4;
         double intakeWaitTime = .5; // time in seconds to wait while clamping or unclamping the intake
         double liftWaitTime = .0; // time in seconds to wait when lifting a cone off the stack
         double armDownWaitTime = .5; // time in seconds to wait before moving the arm down
@@ -105,7 +105,7 @@ public class NewLeft extends LinearOpMode
                 // 1ST CONE - move to stack 1st time
                 //.lineToLinearHeading(new Pose2d(-35, -11, Math.toRadians(135)))
                 //.lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(170)))
-                .back(2)
+                .back(2.5+.3)
                 .turn(Math.toRadians(90))
                 .addTemporalMarker(() -> {
                     // arm down to stack height (5 cones)
@@ -123,7 +123,7 @@ public class NewLeft extends LinearOpMode
                     intake.armRuntoPosition(highPsn, this);
                 })
                 //.waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX - 1, junctionY, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(junctionX - 1, junctionY-.3-.6, Math.toRadians(90)))
                 //.forward(2)
                 // drop 1st cone
                 .addTemporalMarker(() -> {
@@ -228,22 +228,31 @@ public class NewLeft extends LinearOpMode
                 .waitSeconds(intakeWaitTime)*/
                 .build();
         TrajectorySequence zone1 = drive.trajectorySequenceBuilder(traj.end())
+                .back(3-1)
+                .turn(Math.toRadians(90))
                 .addTemporalMarker(armDownWaitTime, () -> {
-                    intake.armRuntoPosition(downPsn, this);
+                    intake.armRuntoPosition(stackArmPsns[2], this);
                 })
-                .lineTo(new Vector2d(stackX, stackY))
+                .lineTo(new Vector2d(stackX + 3+2-5, stackY))
+                //.lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
+                .addTemporalMarker(() -> {
+                    intake.close();
+                })
+                // don't turn so you don't hit the stack
                 .build();
         TrajectorySequence zone2 = drive.trajectorySequenceBuilder(traj.end())
                 .addTemporalMarker(armDownWaitTime, () -> {
                     intake.armRuntoPosition(downPsn, this);
                 })
-                .lineTo(new Vector2d(-31, -8))
+                .lineTo(new Vector2d(-31+2-1-1, -8+1))
+                .turn(Math.toRadians(180))
                 .build();
         TrajectorySequence zone3 = drive.trajectorySequenceBuilder(traj.end())
                 .addTemporalMarker(armDownWaitTime, () -> {
                     intake.armRuntoPosition(downPsn, this);
                 })
-                .lineTo(new Vector2d(-25, -9))
+                .lineTo(new Vector2d(-23, -8))
+                .turn(Math.toRadians(180))
                 .build();
         TrajectorySequence[] zones = { null, zone1, zone2, zone3 };
 

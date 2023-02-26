@@ -15,9 +15,9 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.RevControlHub;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-@Disabled
+//@Disabled
 @Config
-@Autonomous(group = "drive", name = "Left Simple")
+@Autonomous(group = "drive-backup", name = "Left Simple")
 public class LeftSimple extends LinearOpMode {
     /*
     YELLOW  = Parking Left

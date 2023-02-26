@@ -42,7 +42,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import java.util.ArrayList;
 
 @Config
-@Autonomous
+@Autonomous(group = "drive-backup")
 public class RightVerySimple extends LinearOpMode
 {
     OpenCvCamera camera;
