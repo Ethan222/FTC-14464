@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.mechanism;
 
 import static java.lang.Thread.sleep;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -47,12 +48,40 @@ public class RevControlHub {
         // armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    public void armRuntoPositionPositive(int position, double power, LinearOpMode opmode){
+        // armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setTargetPosition(position);
+        while(opmode.opModeIsActive() && !opmode.isStopRequested() && getArmMotorRotations() < position) {
+            armMotor.setPower(-power);
+        }
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armMotor.setPower(0);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     public void armRuntoPositionNegative(int position, double power){
         // armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setTargetPosition(position);
         while(getArmMotorRotations() > position) {
+            armMotor.setPower(power);
+        }
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armMotor.setPower(0);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void armRuntoPositionNegative(int position, double power, LinearOpMode opmode){
+        // armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setTargetPosition(position);
+        while(opmode.opModeIsActive() && !opmode.isStopRequested() && getArmMotorRotations() > position) {
             armMotor.setPower(power);
         }
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -70,6 +99,14 @@ public class RevControlHub {
         }
     }
 
+    public void armRuntoPosition(int position, double power, LinearOpMode opmode) {
+        if ((int)getArmMotorRotations() <= position) {
+            armRuntoPositionPositive(position, power, opmode);
+        }
+        else {
+            armRuntoPositionNegative(position, power, opmode);
+        }
+    }
     public void armRuntoPosition(int position) {
         armRuntoPosition(position, 1);
     }
@@ -80,6 +117,18 @@ public class RevControlHub {
 
     public void armRuntoPositionNegative(int position) {
         armRuntoPositionNegative(position, 1);
+    }
+
+    public void armRuntoPosition(int position, LinearOpMode opmode) {
+        armRuntoPosition(position, 1, opmode);
+    }
+
+    public void armRuntoPositionPositive(int position, LinearOpMode opmode) {
+        armRuntoPositionPositive(position, 1, opmode);
+    }
+
+    public void armRuntoPositionNegative(int position, LinearOpMode opmode) {
+        armRuntoPositionNegative(position, 1, opmode);
     }
 
     public void armUp() {
