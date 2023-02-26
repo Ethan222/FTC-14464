@@ -108,7 +108,7 @@ public class RevControlHub {
     }
 
     public void open() {
-        clampServo1.setPosition(.4);
+        clampServo1.setPosition(.45);
         clampServo2.setPosition(.45);
     }
 }

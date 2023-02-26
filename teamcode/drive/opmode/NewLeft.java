@@ -78,12 +78,12 @@ public class NewLeft extends LinearOpMode
         intake.init(hardwareMap);
         intake.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int lowPsn = 1750, highPsn = 4300, downPsn = 15;
+        int lowPsn = 1850, highPsn = 4370, downPsn = 15;
         int[] stackArmPsns = {0, 590, 450, 310, 170, 30};
-        double stackX = -53, stackY = -11.7;
-        double junctionX = -18, junctionY = -9;
-        double intakeWaitTime = .3; // time in seconds to wait while clamping or unclamping the intake
-        double liftWaitTime = .01; // time in seconds to wait when lifting a cone off the stack
+        double stackX = -58, stackY = -13;
+        double junctionX = -21, junctionY = -10.5;
+        double intakeWaitTime = .5; // time in seconds to wait while clamping or unclamping the intake
+        double liftWaitTime = .0; // time in seconds to wait when lifting a cone off the stack
         double armDownWaitTime = .5; // time in seconds to wait before moving the arm down
         TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(() -> {
@@ -94,7 +94,7 @@ public class NewLeft extends LinearOpMode
                     // arm up to low junction height
                     intake.armRuntoPosition(lowPsn);
                 })
-                .lineTo(new Vector2d(-31, -28))
+                .lineTo(new Vector2d(-35, -20))
                 // drop 0th cone
                 .addTemporalMarker(() -> {
                     intake.open();
@@ -102,7 +102,7 @@ public class NewLeft extends LinearOpMode
                 .waitSeconds(intakeWaitTime)
 
                 // 1ST CONE - move to stack 1st time
-                .lineTo(new Vector2d(-35, -13))
+                .lineTo(new Vector2d(-34, -12))
                 .addTemporalMarker(() -> {
                     // arm down to stack height (5 cones)
                     intake.armRuntoPosition(stackArmPsns[1]);
@@ -118,7 +118,7 @@ public class NewLeft extends LinearOpMode
                     // arm up to high junction height
                     intake.armRuntoPosition(highPsn);
                 })
-                .waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
+                //.waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
                 .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
                 // drop 1st cone
                 .addTemporalMarker(() -> {
@@ -334,7 +334,7 @@ public class NewLeft extends LinearOpMode
         drive.followTrajectorySequence(traj);
 
         // park
-        drive.followTrajectorySequence(zones[zone]);
+        //drive.followTrajectorySequence(zones[zone]);
 
         while(!isStopRequested() && opModeIsActive()) {
             telemetry.addData("Time", t.time());
