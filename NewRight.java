@@ -78,30 +78,30 @@ public class NewRight extends LinearOpMode
         intake.init(hardwareMap);
         intake.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int highPsn = 4470, downPsn = 15;
+        int lowPsn = 1850, highPsn = 4470, downPsn = 15;
         int[] stackArmPsns = {0, 590, 450, 310, 170, 30};
-        double stackX = 61.7, stackY = -7;
-        double junctionX = 26.1, junctionY = -6.4;
+        double stackX = 61.7-.2-.1, stackY = -7+.5+.3+.2+.1+.2;
+        double junctionX = 26.1-.4-.5-.5-.3, junctionY = -6.4+.2+.5+.2;
         double intakeWaitTime = .5; // time in seconds to wait while clamping or unclamping the intake
         double armDownWaitTime = .5; // time in seconds to wait before moving the arm down
         TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(() -> {
                     intake.close();
                 })
-                // move to high junction 0th time
-                .lineTo(new Vector2d(15, -57))
-                .lineTo(new Vector2d(15, -12))
+                // move to high junction 1st time
+                .lineTo(new Vector2d(13, -57))
+                .lineTo(new Vector2d(14, -12+2))
                 .addTemporalMarker(() -> {
                     intake.armRuntoPosition(highPsn, this);
                 })
-                .lineTo(new Vector2d(junctionX, junctionY + 2))
-                // drop 0th cone
+                .lineTo(new Vector2d(junctionX-.5-.7-.3-.4, junctionY + 2+.4))
+                // drop 1st cone
                 .addTemporalMarker(() -> {
                     intake.open();
                 })
                 .waitSeconds(intakeWaitTime)
 
-                // 1ST CONE - move to stack 1st time
+                // 2nd cone - move to stack 1st time
                 .back(2.8)
                 .turn(Math.toRadians(-90))
                 .addTemporalMarker(() -> {
@@ -109,30 +109,6 @@ public class NewRight extends LinearOpMode
                     intake.armRuntoPosition(stackArmPsns[1], this);
                 })
                 .lineTo(new Vector2d(stackX, stackY))
-                // pick up 1st cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 1st time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                    intake.armRuntoPosition(highPsn, this);
-                })
-                .lineToLinearHeading(new Pose2d(junctionX + 1, junctionY-.9, Math.toRadians(90)))
-                //.forward(2)
-                // drop 1st cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-                /*
-                // 2ND CONE - move to stack 2nd time
-                .UNSTABLE_addTemporalMarkerOffset(armDownWaitTime, () -> {
-                    // arm down to stack height (4 cones)
-                    intake.armRuntoPosition(stackArmPsns[2]);
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
                 // pick up 2nd cone
                 .addTemporalMarker(() -> {
                     intake.close();
@@ -141,113 +117,39 @@ public class NewRight extends LinearOpMode
                 // move to high junction 2nd time
                 .addTemporalMarker(() -> {
                     // arm up to high junction height
-                    intake.armRuntoPosition(highPsn);
+                    intake.armRuntoPosition(highPsn, this);
                 })
-                .waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(junctionX + 1, junctionY-.9+.9+.4, Math.toRadians(90)))
+                //.forward(2)
                 // drop 2nd cone
                 .addTemporalMarker(() -> {
                     intake.open();
                 })
                 .waitSeconds(intakeWaitTime)
-
-                // 3RD CONE - move to stack 3rd time
-                .UNSTABLE_addTemporalMarkerOffset(armDownWaitTime, () -> {
-                    // arm down to stack height (3 cones)
-                    intake.armRuntoPosition(stackArmPsns[3]);
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 3rd cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 3rd time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                    intake.armRuntoPosition(highPsn);
-                })
-                .waitSeconds(liftWaitTime) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 3rd cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-
-                // 4TH CONE - move to stack 4th time
-                .UNSTABLE_addTemporalMarkerOffset(armDownWaitTime, () -> {
-                    // arm down to stack height (2 cones)
-                    intake.armRuntoPosition(stackArmPsns[4]);
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 4th cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 4th time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                    intake.armRuntoPosition(highPsn);
-                })
-                .waitSeconds((liftWaitTime)) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 4th cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)
-
-                // 5TH (LAST) CONE - move to stack 5th time
-                .UNSTABLE_addTemporalMarkerOffset(armDownWaitTime, () -> {
-                    // arm down to stack height (1 cone)
-                    intake.armRuntoPosition(stackArmPsns[5]);
-                })
-                .lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
-                // pick up 5th cone
-                .addTemporalMarker(() -> {
-                    intake.close();
-                })
-                .waitSeconds(intakeWaitTime)
-                // move to high junction 5th time
-                .addTemporalMarker(() -> {
-                    // arm up to high junction height
-                    intake.armRuntoPosition(highPsn);
-                })
-                .waitSeconds((liftWaitTime)) // wait to lift cone off stack before moving
-                .lineToLinearHeading(new Pose2d(junctionX, junctionY, Math.toRadians(90)))
-                // drop 5th cone
-                .addTemporalMarker(() -> {
-                    intake.open();
-                })
-                .waitSeconds(intakeWaitTime)*/
                 .build();
         TrajectorySequence zone1 = drive.trajectorySequenceBuilder(traj.end())
                 .addTemporalMarker(armDownWaitTime, () -> {
                     intake.armRuntoPosition(downPsn, this);
                 })
-                .lineTo(new Vector2d(23, -8))
+                .lineTo(new Vector2d(23+1-.3, -8))
                 .turn(Math.toRadians(180))
+                //.forward(11)
                 .build();
         TrajectorySequence zone2 = drive.trajectorySequenceBuilder(traj.end())
                 .addTemporalMarker(armDownWaitTime, () -> {
                     intake.armRuntoPosition(downPsn, this);
                 })
-                .lineTo(new Vector2d(31, -7))
+                .lineTo(new Vector2d(31-.4-.4-.3-.4, -7))
                 .turn(Math.toRadians(180))
+                //.forward(11)
                 .build();
         TrajectorySequence zone3 = drive.trajectorySequenceBuilder(traj.end())
                 .back(2)
-                .turn(Math.toRadians(-90))
-                .addTemporalMarker(armDownWaitTime, () -> {
-                    intake.armRuntoPosition(stackArmPsns[2], this);
-                })
-                .lineTo(new Vector2d(stackX, stackY))
-                //.lineToLinearHeading(new Pose2d(stackX, stackY, Math.toRadians(180)))
+                .lineTo(new Vector2d(stackX-2-1, stackY-3))
                 .addTemporalMarker(() -> {
-                    intake.close();
+                    intake.armRuntoPosition(downPsn, this);
                 })
+                .back(3)
                 // don't turn so you don't hit the stack
                 .build();
         TrajectorySequence[] zones = { null, zone1, zone2, zone3 };
