@@ -250,9 +250,11 @@ public class NewLeft extends LinearOpMode
         // park
         drive.followTrajectorySequence(zones[zone]);
 
-        telemetry.addData("Time left: ", 30 - t.time());
+        double timeLeft = 30 - t.time();
         while(!isStopRequested() && opModeIsActive()) {
+            telemetry.addData("Time left: ", timeLeft);
             telemetry.addData("Time", t.time());
+            telemetry.addData("Countdown: ", 30 - t.time());
             telemetry.update();
         }
     }

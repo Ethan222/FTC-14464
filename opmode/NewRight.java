@@ -119,7 +119,7 @@ public class NewRight extends LinearOpMode
                     // arm up to high junction height
                     intake.armRuntoPosition(highPsn, this);
                 })
-                .lineToLinearHeading(new Pose2d(junctionX + .6, junctionY+.4, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(junctionX+.6-.3, junctionY+.4, Math.toRadians(90)))
                 //.forward(2)
                 // drop 2nd cone
                 .addTemporalMarker(() -> {
@@ -249,9 +249,11 @@ public class NewRight extends LinearOpMode
         // park
         drive.followTrajectorySequence(zones[zone]);
 
-        telemetry.addData("Time left: ", 30 - t.time());
+        double timeLeft = 30 - t.time();
         while(!isStopRequested() && opModeIsActive()) {
+            telemetry.addData("Time left: ", timeLeft);
             telemetry.addData("Time", t.time());
+            telemetry.addData("Countdown: ", 30 - t.time());
             telemetry.update();
         }
     }
