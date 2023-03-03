@@ -65,8 +65,7 @@ public class NewLeft extends LinearOpMode
     final int[] TAGS  = { 0, 1, 2 };
 
     AprilTagDetection tagOfInterest = null;
-    int zone = 2;
-
+    int zone = 3;
 
     @Override
     public void runOpMode() {
